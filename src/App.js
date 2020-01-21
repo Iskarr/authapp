@@ -1,31 +1,46 @@
-import React from "react";
-import "./App.css";
-import { Route } from "react-router-dom";
+import React, { Component } from "react";
+import { Route, Redirect } from "react-router-dom";
 import Home from "./components/Home";
 import Profile from "./components/Profile";
 import Nav from "./components/Nav";
+import Auth from "./auth/Auth";
+import Callback from "./auth/Callback";
+import Public from "./components/Public";
 
-function App() {
-  return (
-    <>
-      <div className="container">
-        <Nav />
-        <Route path="/" exact component={Home} />
-        <Route path="/profile" component={Profile} />
-      </div>
-    </>
-  );
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.auth = new Auth(this.props.history);
+  }
+  render() {
+    return (
+      <>
+        <div className="container">
+          <Nav auth={this.auth} />
+          <Route
+            path="/"
+            exact
+            render={props => <Home auth={this.auth} {...props} />}
+          />
+          <Route
+            path="/callback"
+            render={props => <Callback auth={this.auth} {...props} />}
+          />
+          <Route
+            path="/profile"
+            render={props =>
+              this.auth.isAuthenticated() ? (
+                <Profile auth={this.auth} {...props} />
+              ) : (
+                <Redirect to="/" />
+              )
+            }
+          />
+          <Route path="/public" component={Public} />
+        </div>
+      </>
+    );
+  }
 }
 
 export default App;
-
-// bit.ly/ps-auth0
-
-//npm install auth0-js@9.8.0
-//auth0-lock@11.10.0
-// express@4.16.3
-// express-jwt@5.3.1
-// express-jwt-authz@1.0.0
-// jwks-rsa@1.3.0
-// npm-run-all@4.1.3
-// react-router-dom@4.3.1
