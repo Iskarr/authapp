@@ -1,26 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import { Route } from "react-router-dom";
+import Home from "./components/Home";
+import Profile from "./components/Profile";
+import Nav from "./components/Nav";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <div className="container">
+        <Nav />
+        <Route path="/" exact component={Home} />
+        <Route path="/profile" component={Profile} />
+      </div>
+    </>
   );
 }
 
 export default App;
+
+// bit.ly/ps-auth0
+
+//npm install auth0-js@9.8.0
+//auth0-lock@11.10.0
+// express@4.16.3
+// express-jwt@5.3.1
+// express-jwt-authz@1.0.0
+// jwks-rsa@1.3.0
+// npm-run-all@4.1.3
+// react-router-dom@4.3.1
