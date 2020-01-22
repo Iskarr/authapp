@@ -6,12 +6,14 @@ import Nav from "./components/Nav";
 import Auth from "./auth/Auth";
 import Callback from "./auth/Callback";
 import Public from "./components/Public";
+import Private from "./components/privateRoutes/Private";
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.auth = new Auth(this.props.history);
   }
+
   render() {
     return (
       <>
@@ -37,6 +39,16 @@ class App extends Component {
             }
           />
           <Route path="/public" component={Public} />
+          <Route
+            path="/private"
+            render={props =>
+              this.auth.isAuthenticated() ? (
+                <Private auth={this.auth} {...props} />
+              ) : (
+                this.auth.login()
+              )
+            }
+          />
         </div>
       </>
     );
