@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Route, Redirect } from "react-router-dom";
+import { Route } from "react-router-dom";
 import Home from "./components/Home";
 import Profile from "./components/Profile";
 import Nav from "./components/Nav";
@@ -7,50 +7,52 @@ import Auth from "./auth/Auth";
 import Callback from "./auth/Callback";
 import Public from "./components/Public";
 import Private from "./components/privateRoutes/Private";
+import Courses from "./components/privateRoutes/Courses";
+import PrivateRoute from "./components/privateRoutes/PrivateRoute";
+import AuthContext from "./AuthContext";
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.auth = new Auth(this.props.history);
+    this.state = {
+      auth: new Auth(this.props.history),
+      tokenRenewalComplete: false
+    };
+  }
+
+  componentDidMount() {
+    this.state.auth.renewToken(() =>
+      this.setState({ tokenRenewalComplete: true })
+    );
   }
 
   render() {
+    const { auth } = this.state;
+    // Show loading message until the token renewal check is completed.
+    if (!this.state.tokenRenewalComplete) return "Loading...";
     return (
-      <>
-        <div className="container">
-          <Nav auth={this.auth} />
+      <AuthContext.Provider value={auth}>
+        <Nav auth={auth} />
+        <div className="body">
           <Route
             path="/"
             exact
-            render={props => <Home auth={this.auth} {...props} />}
+            render={props => <Home auth={auth} {...props} />}
           />
           <Route
             path="/callback"
-            render={props => <Callback auth={this.auth} {...props} />}
+            render={props => <Callback auth={auth} {...props} />}
           />
-          <Route
-            path="/profile"
-            render={props =>
-              this.auth.isAuthenticated() ? (
-                <Profile auth={this.auth} {...props} />
-              ) : (
-                <Redirect to="/" />
-              )
-            }
-          />
+          <PrivateRoute path="/profile" component={Profile} />
           <Route path="/public" component={Public} />
-          <Route
-            path="/private"
-            render={props =>
-              this.auth.isAuthenticated() ? (
-                <Private auth={this.auth} {...props} />
-              ) : (
-                this.auth.login()
-              )
-            }
+          <PrivateRoute path="/private" component={Private} />
+          <PrivateRoute
+            path="/courses"
+            component={Courses}
+            scopes={["read:courses"]}
           />
         </div>
-      </>
+      </AuthContext.Provider>
     );
   }
 }
